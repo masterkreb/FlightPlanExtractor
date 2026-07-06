@@ -1,0 +1,24 @@
+# Build-Ergebnisse
+bin/
+obj/
+
+# Visual Studio Dateien
+.vs/
+*.user
+*.suo
+
+# Rider / VS Code (falls genutzt)
+.idea/
+.vscode/
+
+# NuGet
+*.nupkg
+packages/
+
+# Testergebnisse
+TestResults/
+*.trx
+
+# OS-spezifisch
+.DS_Store
+Thumbs.db

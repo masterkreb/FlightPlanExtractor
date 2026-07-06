@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Projektmappenelemente/">
+    <File Path=".gitignore" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="FlightPlanExtractor.ConsoleApp/FlightPlanExtractor.ConsoleApp.csproj" />
+  <Project Path="FlightPlanExtractor.Core/FlightPlanExtractor.Core.csproj" />
+  <Project Path="FlightPlanExtractor.Tests/FlightPlanExtractor.Tests.csproj" />
+</Solution>
