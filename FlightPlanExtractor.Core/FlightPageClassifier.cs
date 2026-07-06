@@ -4,16 +4,27 @@ public sealed class FlightPageClassifier
 {
     public FlightPageType Classify(PdfPageText page)
     {
-        if (page.Text.Contains("Operational Flight Plan", StringComparison.OrdinalIgnoreCase))
+        var text = page.Text;
+
+        if (Contains(text, "Operational Flight Plan")
+            && Contains(text, "FltNr")
+            && Contains(text, "ATC"))
         {
             return FlightPageType.OperationalFlightPlan;
         }
 
-        if (page.Text.Contains("Flight Assignment / Flight Crew Briefing", StringComparison.OrdinalIgnoreCase))
+        if (Contains(text, "Flight Assignment / Flight Crew Briefing")
+            && Contains(text, "DOW:")
+            && Contains(text, "DOI:"))
         {
             return FlightPageType.CrewBriefing;
         }
 
         return FlightPageType.Irrelevant;
+    }
+
+    private static bool Contains(string text, string value)
+    {
+        return text.Contains(value, StringComparison.OrdinalIgnoreCase);
     }
 }
