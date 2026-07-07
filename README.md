@@ -163,13 +163,13 @@ requiring a real PDF for every test case.
 Current tests cover:
 
 - page classification
+- OFP field extraction
+- Crew Briefing field extraction
 - merging OFP and Crew Briefing records by flight number and ATC call sign
 - the extraction pipeline from already-read page text to merged flight data
 
 Additional tests should be added for:
 
-- OFP field extraction
-- Crew Briefing field extraction
 - unmatched-record issues
 
 ## Known Limitations
