@@ -1,4 +1,4 @@
-﻿namespace FlightPlanExtractor.Core;
+namespace FlightPlanExtractor.Core;
 
 public sealed class FlightPageClassifier
 {
@@ -6,6 +6,7 @@ public sealed class FlightPageClassifier
     {
         var text = page.Text;
 
+        // The main OFP data page contains flight labels such as FltNr and ATC.
         if (Contains(text, "Operational Flight Plan")
             && Contains(text, "FltNr")
             && Contains(text, "ATC"))
@@ -13,6 +14,7 @@ public sealed class FlightPageClassifier
             return FlightPageType.OperationalFlightPlan;
         }
 
+        // The relevant crew page contains the briefing header and weight/index fields.
         if (Contains(text, "Flight Assignment / Flight Crew Briefing")
             && Contains(text, "DOW:")
             && Contains(text, "DOI:"))

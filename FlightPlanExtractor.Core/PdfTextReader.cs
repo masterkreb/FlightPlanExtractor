@@ -1,4 +1,4 @@
-﻿using UglyToad.PdfPig;
+using UglyToad.PdfPig;
 
 namespace FlightPlanExtractor.Core;
 
@@ -8,6 +8,7 @@ public sealed class PdfTextReader
     {
         var pages = new List<PdfPageText>();
 
+        // PdfPig opens the PDF and gives access to every page.
         using var document = PdfDocument.Open(pdfPath);
 
         foreach (var page in document.GetPages())

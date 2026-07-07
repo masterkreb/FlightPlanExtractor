@@ -1,4 +1,4 @@
-﻿using FlightPlanExtractor.Core;
+using FlightPlanExtractor.Core;
 
 if (args.Length == 0)
 {
@@ -15,12 +15,19 @@ var pages = reader.ReadPages(pdfPath);
 
 var classifier = new FlightPageClassifier();
 
+// For now the console app shows which pages are relevant for the next parser step.
 var operationalFlightPlanPages = pages
     .Where(page => classifier.Classify(page) == FlightPageType.OperationalFlightPlan)
     .ToList();
 
 var crewBriefingPages = pages
     .Where(page => classifier.Classify(page) == FlightPageType.CrewBriefing)
+    .ToList();
+
+var ofpParser = new OperationalFlightPlanParser();
+
+var operationalFlightPlans = operationalFlightPlanPages
+    .Select(page => ofpParser.Parse(page))
     .ToList();
 
 Console.WriteLine($"Read {pages.Count} pages from:");
@@ -37,6 +44,15 @@ Console.WriteLine(string.Join(", ", operationalFlightPlanPages.Select(page => pa
 
 Console.WriteLine("Crew Briefing page numbers:");
 Console.WriteLine(string.Join(", ", crewBriefingPages.Select(page => page.PageNumber)));
+
+Console.WriteLine();
+Console.WriteLine("Operational Flight Plan data:");
+
+foreach (var ofp in operationalFlightPlans)
+{
+    Console.WriteLine(
+        $"Page {ofp.PageNumber}: {ofp.FlightNumber} / {ofp.AtcCallSign} / {ofp.RouteFrom}-{ofp.RouteTo} / {ofp.AircraftRegistration} / {ofp.Date}");
+}
 
 Console.WriteLine();
 
