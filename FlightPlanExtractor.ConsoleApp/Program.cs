@@ -37,7 +37,8 @@ var crewBriefings = crewBriefingPages
     .ToList();
 
 var merger = new FlightDataMerger();
-var flights = merger.Merge(operationalFlightPlans, crewBriefings);
+var result = merger.Merge(operationalFlightPlans, crewBriefings);
+var flights = result.Flights;
 
 Console.WriteLine($"Read {pages.Count} pages from:");
 Console.WriteLine(pdfPath);
@@ -86,4 +87,15 @@ foreach (var flight in flights)
     }
 
     Console.WriteLine($"  Source page: {crew?.PageNumber}");
+}
+
+if (result.Issues.Count > 0)
+{
+    Console.WriteLine();
+    Console.WriteLine("Issues:");
+
+    foreach (var issue in result.Issues)
+    {
+        Console.WriteLine($"  [{issue.Severity}] Page {issue.PageNumber}: {issue.Message}");
+    }
 }
