@@ -109,7 +109,13 @@ Briefing page. It matches records by values found in the document, not by page o
 
 ### Run the console app
 ```bash
-dotnet run --project FlightPlanExtractor.ConsoleApp
+dotnet run --project FlightPlanExtractor.ConsoleApp -- "path/to/sample.pdf"
+```
+
+Example:
+
+```bash
+dotnet run --project FlightPlanExtractor.ConsoleApp -- "C:\Files\sample.pdf"
 ```
 
 ### Run the tests
@@ -142,7 +148,29 @@ referenced in the `.csproj` files automatically).
 
 ## Error Handling
 
+The extractor returns an `ExtractionResult` object that contains both extracted
+flights and extraction issues. This allows the caller to continue working with
+partial results instead of stopping the whole process immediately.
+
+At the moment, the merger creates warnings for unmatched records:
+
+- an OFP entry without a matching Crew Briefing entry
+- a Crew Briefing entry without a matching OFP entry
+
+The issue contains a severity, a message and the source page if available.
+
 ## Testing
+
+The solution contains a separate xUnit test project. The current implementation is
+structured so parser and merger logic can be tested with plain text samples without
+requiring a real PDF for every test case.
+
+Additional tests should be added for:
+
+- page classification
+- OFP field extraction
+- Crew Briefing field extraction
+- matching and unmatched-record issues
 
 ## Known Limitations
 
@@ -152,5 +180,24 @@ that simply takes the next four letters after `ALTN2:` would incorrectly read `D
 as an airport code. The current OFP parser therefore expects an airport pattern such
 as `LIML LIN` instead of only any four letters.
 
+The current implementation is focused on the provided sample PDF. It demonstrates the
+approach and extracts the requested fields from that sample, but additional PDF
+variants may require more parsing rules.
+
+Dates are currently kept in the format found in the PDF text, for example `19MAR24`
+for OFP pages and `19.Mar.2024` for Crew Briefing pages. A production version should
+normalize these values.
+
+Some parser rules are regex-based and depend on labels such as `FltNr`, `ATC`, `DOW`
+and `DOI`. If the external PDF generator changes these labels, the parser should
+report missing fields and the rules may need to be adjusted.
+
 ## Possible Improvements
+
+- Normalize dates into a common `DateOnly` value.
+- Add more unit tests for parser edge cases.
+- Add structured JSON output.
+- Add more detailed issues for missing individual fields.
+- Make field definitions more configurable.
+- Support additional PDF layout variants.
 
