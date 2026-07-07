@@ -61,16 +61,17 @@ Processing pipeline:
 PDF file
    │
    ▼
-IPdfTextReader   → reads raw text per page
+PdfTextReader             → reads raw text per page
    │
    ▼
-IPageClassifier  → determines page type (OFP start page / Crew Briefing start page / irrelevant)
+FlightPageClassifier      → determines page type (OFP start page / Crew Briefing start page / irrelevant)
    │
    ▼
-IFieldExtractor  → extracts fields from a recognized page
+OperationalFlightPlanParser
+CrewBriefingParser        → extracts fields from recognized pages
    │
    ▼
-IFlightMerger    → merges OFP + Crew Briefing records by flight number
+FlightDataMerger          → merges OFP + Crew Briefing records by flight number and ATC call sign
    │
    ▼
 List<FlightData>
@@ -85,8 +86,8 @@ without needing a real PDF file).
 ### Project Structure
 
 ```
-FlightPlanExtractor.sln
-├── FlightPlanExtractor.Core        Class library: interfaces, models, extraction logic
+FlightPlanExtractor.slnx
+├── FlightPlanExtractor.Core        Class library: models, parsers, extraction logic
 ├── FlightPlanExtractor.ConsoleApp  Sample console app demonstrating usage
 └── FlightPlanExtractor.Tests       Unit tests
 ```
@@ -124,27 +125,18 @@ dotnet test
 ```
 
 NuGet packages are restored automatically on build; no separate install step is
-required (unlike e.g. `npm install` in Node.js projects, .NET restores packages
+required (unlike for example `npm install` in Node.js projects, .NET restores packages
 referenced in the `.csproj` files automatically).
 
 ## Libraries Used
 
-- **PdfPig** – used for reading raw text (and layout/position data) per page from the
-  PDF. I compared a few open-source .NET options for PDF text extraction (for example PdfPig,
+- **PdfPig** – used for reading raw text per page from the PDF. I compared a few
+  open-source .NET options for PDF text extraction (for example PdfPig,
   iText, PDFsharp) and chose PdfPig because it is free and open-source (MIT license),
   actively maintained, and focused specifically on reading/extracting content rather
   than PDF creation or editing, which fits this use case well.
-- **Microsoft.Extensions.DependencyInjection** – used for IoC/dependency injection. The
-  architecture relies on interfaces (`IPdfTextReader`, `IPageClassifier`,
-  `IFieldExtractor`, `IFlightMerger`), so a DI container is needed to wire concrete
-  implementations together at runtime. I chose Microsoft's own package since it's free,
-  officially supported, and the de-facto standard in the .NET ecosystem, avoiding an
-  extra third-party dependency for something the framework already provides.
 - **xUnit** – test framework used for unit testing. It's free, actively maintained, and
   the most common choice in modern .NET projects.
-- **Moq** – mocking library used together with xUnit to fake dependencies (for example
-  `IPdfTextReader`) in unit tests, so extraction logic can be tested with plain strings
-  instead of real PDF files.
 
 ## Error Handling
 
