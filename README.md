@@ -2,27 +2,28 @@
 
 ## Overview
 
-This application reads PDF flight planning documents and extracts predefined text
-fields into structured objects. Each PDF can contain data for one or more flights,
-spread across two chapters: the Operational Flight Plan (OFP) and the Crew Briefing.
-The result is a list of flight objects, each combining the relevant data from both
-chapters.
+This application reads flight planning PDF files and extracts the fields required by
+the task into structured objects.
+
+A PDF file can contain one or more flights. The required data is split between two
+sections: the Operational Flight Plan (OFP) and the Crew Briefing.
+
+The result is a list of flight objects. Each flight object combines the extracted OFP
+data with the matching Crew Briefing data.
 
 ## Task Understanding
 
 The task requires a module that:
-- Extracts a predefined set of fields from two chapters (OFP and Crew Briefing) in a
-  PDF that may contain data for multiple flights.
-- Ignores all other, unrelated pages/chapters in the document.
+
+- Extracts the required fields from the OFP and Crew Briefing sections of a PDF file.
+- Supports PDF files that contain data for multiple flights.
+- Ignores unrelated pages and sections in the document.
 - Is easy to extend with new fields.
-- Handles errors appropriately and reports them to the caller with enough context to
-  diagnose the issue (PDFs come from external systems and can be malformed, changed
-  without notice, etc.).
-- Is structured so it can be extended, integrated into a larger system, and adequately
-  tested.
+- Handles errors and reports them to the calling code with enough context to understand the
+  problem.
+- Is structured so it can be extended, integrated into a larger system and tested.
 - Is written in the latest version of .NET Core.
-- Comes with a sample console app to demonstrate usage, while the core logic is built
-  for integration into a larger project.
+- Includes a sample console app to demonstrate how the core logic can be used.
 
 ## How I Approached the Task
 
@@ -30,93 +31,101 @@ The task requires a module that:
    output in my own words.
 2. I inspected the provided sample PDF and checked that the document contains
    machine-readable text.
-3. I implemented the solution in small steps: first reading page text, then
-   classifying relevant pages, then extracting fields and finally merging the records.
+3. I implemented the solution in small steps: first reading text from the PDF, then
+   finding the relevant OFP and Crew Briefing pages, then extracting the required
+   fields and finally merging matching OFP and Crew Briefing records.
 4. I compared the OFP and Crew Briefing pages for the same flights and identified
    shared values such as flight number, ATC call sign and date.
 5. Based on that, I decided not to rely on page order, but to merge records using
    stable values found in the document.
 6. I structured the solution into a core library, a console app and a test project so
    the extraction logic can be reused and tested independently.
-7. I added an extraction result object with issues, so the caller can receive partial
-   results together with warnings instead of only getting a hard failure.
+7. I added an extraction result object with issues, so the calling code can receive partial
+   results together with warnings instead of only getting an error.
+8. I ran the program with the provided sample PDF to check that the expected flights
+   and fields are extracted.
+9. I added unit tests for the classifier, parsers, merger and extraction pipeline.
 
 ## Architecture
 
-I modeled each flight as a composite object rather than a single flat object, since OFP
-and Crew Briefing data come from different sources (different page layouts, extracted
-by different logic):
+I modeled each flight as one main object with two separate data parts: one for the OFP data
+and one for the Crew Briefing data. This fits the document structure, because both
+sections have different page layouts and are parsed by separate parser classes.
 
 ```
 FlightData
-├── OperationalFlightPlan   (all OFP fields)
-└── CrewBriefing            (all Crew Briefing fields)
+├── OperationalFlightPlan
+└── CrewBriefing
 ```
 
-This keeps parsing responsibilities separated and makes it straightforward to add a
-third chapter/source later without changing the existing structure.
+This keeps the parsing code separated and makes it easier to add another data part
+later without changing the existing structure.
 
 Processing pipeline:
 
-```
+```text
 PDF file
    │
    ▼
-PdfFlightExtractor       → coordinates the extraction pipeline
+PdfFlightExtractor        → runs the full extraction process
    │
    ▼
-PdfTextReader             → reads raw text per page
+PdfTextReader             → reads text from each page
    │
    ▼
-FlightPageClassifier      → determines page type (OFP start page / Crew Briefing start page / irrelevant)
+FlightPageClassifier      → checks if a page is OFP, Crew Briefing or irrelevant
    │
    ▼
-OperationalFlightPlanParser
-CrewBriefingParser        → extracts fields from recognized pages
+OperationalFlightPlanParser → extracts OFP fields
+CrewBriefingParser          → extracts Crew Briefing fields
    │
    ▼
-FlightDataMerger          → merges OFP + Crew Briefing records by flight number and ATC call sign
+FlightDataMerger          → combines matching OFP and Crew Briefing records
    │
    ▼
 ExtractionResult
 ```
 
-The PDF library is only responsible for reading raw text per page. Recognizing and
-extracting the specific fields (for example flight number, departure time) is implemented as
-separate parsing logic on top of that raw text, which keeps the two concerns
-independently testable (field-extraction logic can be unit tested with plain strings,
-without needing a real PDF file).
+PdfPig extracts raw text from the PDF. The project code then decides which
+pages are relevant and extracts the required fields. This also makes testing easier,
+because parser tests can use plain strings instead of real PDF files.
 
 ### Project Structure
 
 ```
 FlightPlanExtractor.slnx
-├── FlightPlanExtractor.Core        Class library: models, parsers, extraction logic
-├── FlightPlanExtractor.ConsoleApp  Sample console app demonstrating usage
+├── FlightPlanExtractor.Core        Class library with models, parsers and extraction logic
+├── FlightPlanExtractor.ConsoleApp  Console app that demonstrates how to use the core logic
 └── FlightPlanExtractor.Tests       Unit tests
 ```
 
 ## Matching Strategy
 
-Each flight appears once in the OFP chapter and once in the Crew Briefing chapter, as
-separate page blocks in the document. By inspecting the full sample file, I found that
-the flight number (and the ATC callsign) appears identically on both the OFP page and
-the corresponding Crew Briefing page for the same flight, so I use it as the key to
-match and merge the two records into one `FlightData` object.
+Each relevant flight has an OFP record and a Crew Briefing record in separate page
+blocks. By inspecting the full sample file, I found that the flight number and ATC
+call sign appear on both records for the same flight, so I use these values as the
+merge key.
 
-The implementation does not assume that the first OFP page belongs to the first Crew
+| Source | Values used for matching |
+|---|---|
+| Operational Flight Plan | Flight number, ATC call sign |
+| Crew Briefing | Flight number, ATC call sign |
+
+For the sample file, flight number and ATC call sign are enough to match the records.
+I also considered using the flight date, but the OFP and Crew Briefing dates have
+different formats in the extracted text. For this version, I kept the merge key simple
+and documented date normalization as a possible improvement.
+
+The code does not assume that the first OFP page belongs to the first Crew
 Briefing page. It matches records by values found in the document, not by page order.
 
-## Assumptions
+## What the Code Expects
 
 - The input PDF contains extractable text and is not only a scanned image.
 - Relevant OFP pages contain labels such as `Operational Flight Plan`, `FltNr` and
   `ATC`.
 - Relevant Crew Briefing pages contain labels such as `Flight Assignment / Flight Crew
   Briefing`, `DOW` and `DOI`.
-- For the current implementation, flight number and ATC call sign are used as the
-  merge key. In a production version, I would also normalize and include the flight
-  date to avoid ambiguity across multiple days.
 
 ## How to Run
 
@@ -155,20 +164,26 @@ referenced in the `.csproj` files automatically).
 
 ## Error Handling
 
-The extractor returns an `ExtractionResult` object that contains both extracted
-flights and extraction issues. This allows the caller to continue working with
-partial results instead of stopping the whole process immediately.
+The `PdfFlightExtractor` returns an `ExtractionResult` object that contains both extracted
+flights and extraction issues. This allows the calling code to continue working with
+partial results instead of only stopping with an error.
 
-At the moment, the merger creates warnings for unmatched records:
+The merger creates warnings for unmatched records:
 
 - an OFP entry without a matching Crew Briefing entry
 - a Crew Briefing entry without a matching OFP entry
 
-The issue contains a severity, a message and the source page if available.
+Each issue contains a severity, a message and the source page if available.
+
+Example issue:
+
+```text
+[Warning] Page 5: No matching crew briefing found for LX1612 / SWR612Q.
+```
 
 ## Testing
 
-The solution contains a separate xUnit test project. The current implementation is
+The solution contains a separate xUnit test project. The current version is
 structured so parser and merger logic can be tested with plain text samples without
 requiring a real PDF for every test case.
 
@@ -192,7 +207,7 @@ that simply takes the next four letters after `ALTN2:` would incorrectly read `D
 as an airport code. The current OFP parser therefore expects an airport pattern such
 as `LIML LIN` instead of only any four letters.
 
-The current implementation is focused on the provided sample PDF. It demonstrates the
+The current version is focused on the provided sample PDF. It demonstrates the
 approach and extracts the requested fields from that sample, but additional PDF
 variants may require more parsing rules.
 
@@ -213,4 +228,7 @@ report missing fields and the rules may need to be adjusted.
 - Make field definitions more configurable.
 - Support additional PDF layout variants.
 - Add OCR handling for scanned PDFs if required.
+- Normalize and include the flight date in the merge key, so flights with the same
+  number on different days cannot be mixed up.
+- Introduce interfaces and dependency injection if multiple implementations are needed.
 
