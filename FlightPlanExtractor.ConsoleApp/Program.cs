@@ -36,6 +36,9 @@ var crewBriefings = crewBriefingPages
     .Select(page => crewParser.Parse(page))
     .ToList();
 
+var merger = new FlightDataMerger();
+var flights = merger.Merge(operationalFlightPlans, crewBriefings);
+
 Console.WriteLine($"Read {pages.Count} pages from:");
 Console.WriteLine(pdfPath);
 
@@ -67,6 +70,18 @@ foreach (var crew in crewBriefings)
 {
     Console.WriteLine(
         $"Page {crew.PageNumber}: {crew.FlightNumber} / {crew.AtcCallSign} / C:{crew.BusinessPassengers} Y:{crew.EconomyPassengers} / DOW:{crew.DryOperatingWeight} / DOI:{crew.DryOperatingIndex} / {crew.Date}");
+}
+
+Console.WriteLine();
+Console.WriteLine("Merged flight data:");
+
+foreach (var flight in flights)
+{
+    var ofp = flight.OperationalFlightPlan;
+    var crew = flight.CrewBriefing;
+
+    Console.WriteLine(
+        $"{flight.FlightNumber} / {flight.AtcCallSign} / {ofp?.RouteFrom}-{ofp?.RouteTo} / C:{crew?.BusinessPassengers} Y:{crew?.EconomyPassengers}");
 }
 
 Console.WriteLine();
