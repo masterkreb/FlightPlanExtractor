@@ -17,7 +17,8 @@ public sealed class CrewBriefingParser
             BusinessPassengers: FindPassengerCount(text, 1),
             EconomyPassengers: FindPassengerCount(text, 2),
             DryOperatingWeight: FindIntegerAfterLabel(text, "DOW:"),
-            DryOperatingIndex: FindDecimalAfterLabel(text, "DOI:"));
+            DryOperatingIndex: FindDecimalAfterLabel(text, "DOI:"),
+            CrewMembers: FindCrewMembers(text));
     }
 
     private static string? FindDate(string text)
@@ -109,5 +110,21 @@ public sealed class CrewBriefingParser
 
         // In the sample file a DOI of 0 is joined with the next value, for example 28822kg034065kg.
         return decimal.Parse(valueBlock[..1], CultureInfo.InvariantCulture);
+    }
+
+    private static IReadOnlyList<CrewMember> FindCrewMembers(string text)
+    {
+        var crewMembers = new List<CrewMember>();
+        var pattern = @"(CMD|COP|CAB|SEN)[A-Z]{3}(.+?)(Commander|Copilot|Cabin Attendant|Senior Cabin Attendant)";
+        var matches = Regex.Matches(text, pattern, RegexOptions.IgnoreCase);
+
+        foreach (Match match in matches)
+        {
+            crewMembers.Add(new CrewMember(
+                Name: match.Groups[2].Value.Trim(),
+                Function: match.Groups[1].Value.ToUpperInvariant()));
+        }
+
+        return crewMembers;
     }
 }

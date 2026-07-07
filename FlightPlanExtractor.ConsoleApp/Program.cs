@@ -47,53 +47,43 @@ Console.WriteLine($"Operational Flight Plan pages: {operationalFlightPlanPages.C
 Console.WriteLine($"Crew Briefing pages: {crewBriefingPages.Count}");
 
 Console.WriteLine();
-
-Console.WriteLine("Operational Flight Plan page numbers:");
-Console.WriteLine(string.Join(", ", operationalFlightPlanPages.Select(page => page.PageNumber)));
-
-Console.WriteLine("Crew Briefing page numbers:");
-Console.WriteLine(string.Join(", ", crewBriefingPages.Select(page => page.PageNumber)));
-
-Console.WriteLine();
-Console.WriteLine("Operational Flight Plan data:");
-
-foreach (var ofp in operationalFlightPlans)
-{
-    Console.WriteLine(
-        $"Page {ofp.PageNumber}: {ofp.FlightNumber} / {ofp.AtcCallSign} / {ofp.RouteFrom}-{ofp.RouteTo} / {ofp.AircraftRegistration} / {ofp.Date}");
-}
-
-Console.WriteLine();
-Console.WriteLine("Crew Briefing data:");
-
-foreach (var crew in crewBriefings)
-{
-    Console.WriteLine(
-        $"Page {crew.PageNumber}: {crew.FlightNumber} / {crew.AtcCallSign} / C:{crew.BusinessPassengers} Y:{crew.EconomyPassengers} / DOW:{crew.DryOperatingWeight} / DOI:{crew.DryOperatingIndex} / {crew.Date}");
-}
-
-Console.WriteLine();
-Console.WriteLine("Merged flight data:");
+Console.WriteLine("Extracted flights:");
 
 foreach (var flight in flights)
 {
     var ofp = flight.OperationalFlightPlan;
     var crew = flight.CrewBriefing;
 
-    Console.WriteLine(
-        $"{flight.FlightNumber} / {flight.AtcCallSign} / {ofp?.RouteFrom}-{ofp?.RouteTo} / C:{crew?.BusinessPassengers} Y:{crew?.EconomyPassengers}");
-}
+    Console.WriteLine();
+    Console.WriteLine($"Flight {flight.FlightNumber} / {flight.AtcCallSign}");
+    Console.WriteLine("Operational Flight Plan:");
+    Console.WriteLine($"  Date: {ofp?.Date}");
+    Console.WriteLine($"  Aircraft registration: {ofp?.AircraftRegistration}");
+    Console.WriteLine($"  Route: from {ofp?.RouteFrom} to {ofp?.RouteTo}");
+    Console.WriteLine($"  Alternate airdrome 1: {ofp?.AlternateAirdrome1}");
+    Console.WriteLine($"  Alternate airdrome 2: {ofp?.AlternateAirdrome2 ?? "none"}");
+    Console.WriteLine($"  Departure time: {ofp?.DepartureTime}");
+    Console.WriteLine($"  Arrival time: {ofp?.ArrivalTime}");
+    Console.WriteLine($"  Zero fuel mass: {ofp?.ZeroFuelMass}");
+    Console.WriteLine($"  Time to destination: {ofp?.TimeToDestination}");
+    Console.WriteLine($"  Fuel to destination: {ofp?.FuelToDestination}");
+    Console.WriteLine($"  Time to alternate: {ofp?.TimeToAlternate}");
+    Console.WriteLine($"  Fuel to alternate: {ofp?.FuelToAlternate}");
+    Console.WriteLine($"  Minimum fuel required: {ofp?.MinimumFuelRequired}");
+    Console.WriteLine($"  Route first and last navigation point: {ofp?.RouteFirstAndLastNavigationPoint}");
+    Console.WriteLine($"  Gain/loss: {ofp?.GainLoss}");
+    Console.WriteLine($"  Source page: {ofp?.PageNumber}");
+    Console.WriteLine("Crew Briefing:");
+    Console.WriteLine($"  Business passengers: {crew?.BusinessPassengers}");
+    Console.WriteLine($"  Economy passengers: {crew?.EconomyPassengers}");
+    Console.WriteLine($"  Dry operating weight: {crew?.DryOperatingWeight}");
+    Console.WriteLine($"  Dry operating index: {crew?.DryOperatingIndex}");
+    Console.WriteLine("  Crew members:");
 
-Console.WriteLine();
-
-foreach (var page in pages.Take(5))
-{
-    var preview = page.Text.ReplaceLineEndings(" ");
-
-    if (preview.Length > 250)
+    foreach (var member in crew?.CrewMembers ?? [])
     {
-        preview = preview[..250] + "...";
+        Console.WriteLine($"    - {member.Name}, {member.Function}");
     }
 
-    Console.WriteLine($"Page {page.PageNumber}: {preview}");
+    Console.WriteLine($"  Source page: {crew?.PageNumber}");
 }

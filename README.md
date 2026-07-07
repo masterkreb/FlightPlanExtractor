@@ -77,7 +77,7 @@ List<FlightData>
 ```
 
 The PDF library is only responsible for reading raw text per page. Recognizing and
-extracting the specific fields (e.g. flight number, departure time) is implemented as
+extracting the specific fields (for example flight number, departure time) is implemented as
 separate parsing logic on top of that raw text, which keeps the two concerns
 independently testable (field-extraction logic can be unit tested with plain strings,
 without needing a real PDF file).
@@ -98,6 +98,9 @@ separate page blocks in the document. By inspecting the full sample file, I foun
 the flight number (and the ATC callsign) appears identically on both the OFP page and
 the corresponding Crew Briefing page for the same flight, so I use it as the key to
 match and merge the two records into one `FlightData` object.
+
+The implementation does not assume that the first OFP page belongs to the first Crew
+Briefing page. It matches records by values found in the document, not by page order.
 
 ## How to Run
 
@@ -121,7 +124,7 @@ referenced in the `.csproj` files automatically).
 ## Libraries Used
 
 - **PdfPig** – used for reading raw text (and layout/position data) per page from the
-  PDF. I compared a few open-source .NET options for PDF text extraction (e.g. PdfPig,
+  PDF. I compared a few open-source .NET options for PDF text extraction (for example PdfPig,
   iText, PDFsharp) and chose PdfPig because it is free and open-source (MIT license),
   actively maintained, and focused specifically on reading/extracting content rather
   than PDF creation or editing, which fits this use case well.
@@ -133,7 +136,7 @@ referenced in the `.csproj` files automatically).
   extra third-party dependency for something the framework already provides.
 - **xUnit** – test framework used for unit testing. It's free, actively maintained, and
   the most common choice in modern .NET projects.
-- **Moq** – mocking library used together with xUnit to fake dependencies (e.g.
+- **Moq** – mocking library used together with xUnit to fake dependencies (for example
   `IPdfTextReader`) in unit tests, so extraction logic can be tested with plain strings
   instead of real PDF files.
 
@@ -142,6 +145,12 @@ referenced in the `.csproj` files automatically).
 ## Testing
 
 ## Known Limitations
+
+PDF text extraction does not always follow the visual layout exactly. For example, an
+empty `ALTN2` field in the sample file is followed by the word `Delay`, so a parser
+that simply takes the next four letters after `ALTN2:` would incorrectly read `Dela`
+as an airport code. The current OFP parser therefore expects an airport pattern such
+as `LIML LIN` instead of only any four letters.
 
 ## Possible Improvements
 

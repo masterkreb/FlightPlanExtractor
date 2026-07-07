@@ -9,4 +9,5 @@ public sealed record CrewBriefingData(
     int? BusinessPassengers,
     int? EconomyPassengers,
     int? DryOperatingWeight,
-    decimal? DryOperatingIndex);
+    decimal? DryOperatingIndex,
+    IReadOnlyList<CrewMember> CrewMembers);
