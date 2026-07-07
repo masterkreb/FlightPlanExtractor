@@ -61,6 +61,9 @@ Processing pipeline:
 PDF file
    │
    ▼
+PdfFlightExtractor       → coordinates the extraction pipeline
+   │
+   ▼
 PdfTextReader             → reads raw text per page
    │
    ▼
@@ -74,7 +77,7 @@ CrewBriefingParser        → extracts fields from recognized pages
 FlightDataMerger          → merges OFP + Crew Briefing records by flight number and ATC call sign
    │
    ▼
-List<FlightData>
+ExtractionResult
 ```
 
 The PDF library is only responsible for reading raw text per page. Recognizing and
@@ -161,6 +164,7 @@ Current tests cover:
 
 - page classification
 - merging OFP and Crew Briefing records by flight number and ATC call sign
+- the extraction pipeline from already-read page text to merged flight data
 
 Additional tests should be added for:
 

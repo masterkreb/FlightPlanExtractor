@@ -3,4 +3,7 @@
 // Contains the extracted flights and all issues found during extraction.
 public sealed record ExtractionResult(
     IReadOnlyList<FlightData> Flights,
-    IReadOnlyList<ExtractionIssue> Issues);
+    IReadOnlyList<ExtractionIssue> Issues,
+    int? TotalPageCount = null,
+    int? OperationalFlightPlanPageCount = null,
+    int? CrewBriefingPageCount = null);

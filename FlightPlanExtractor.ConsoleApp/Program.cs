@@ -10,42 +10,16 @@ if (args.Length == 0)
 
 var pdfPath = args[0];
 
-var reader = new PdfTextReader();
-var pages = reader.ReadPages(pdfPath);
-
-var classifier = new FlightPageClassifier();
-
-// For now the console app shows which pages are relevant for the next parser step.
-var operationalFlightPlanPages = pages
-    .Where(page => classifier.Classify(page) == FlightPageType.OperationalFlightPlan)
-    .ToList();
-
-var crewBriefingPages = pages
-    .Where(page => classifier.Classify(page) == FlightPageType.CrewBriefing)
-    .ToList();
-
-var ofpParser = new OperationalFlightPlanParser();
-
-var operationalFlightPlans = operationalFlightPlanPages
-    .Select(page => ofpParser.Parse(page))
-    .ToList();
-
-var crewParser = new CrewBriefingParser();
-
-var crewBriefings = crewBriefingPages
-    .Select(page => crewParser.Parse(page))
-    .ToList();
-
-var merger = new FlightDataMerger();
-var result = merger.Merge(operationalFlightPlans, crewBriefings);
+var extractor = new PdfFlightExtractor();
+var result = extractor.Extract(pdfPath);
 var flights = result.Flights;
 
-Console.WriteLine($"Read {pages.Count} pages from:");
+Console.WriteLine($"Read {result.TotalPageCount} pages from:");
 Console.WriteLine(pdfPath);
 
 Console.WriteLine();
-Console.WriteLine($"Operational Flight Plan pages: {operationalFlightPlanPages.Count}");
-Console.WriteLine($"Crew Briefing pages: {crewBriefingPages.Count}");
+Console.WriteLine($"Operational Flight Plan pages: {result.OperationalFlightPlanPageCount}");
+Console.WriteLine($"Crew Briefing pages: {result.CrewBriefingPageCount}");
 
 Console.WriteLine();
 Console.WriteLine("Extracted flights:");
