@@ -28,17 +28,18 @@ The task requires a module that:
 
 1. I first read the task description carefully and summarized the expected input and
    output in my own words.
-2. I inspected the provided sample PDF to find where the required OFP and Crew Briefing
-   fields appear.
-3. I compared the OFP and Crew Briefing pages for the same flights and identified
+2. I inspected the provided sample PDF and checked that the document contains
+   machine-readable text.
+3. I implemented the solution in small steps: first reading page text, then
+   classifying relevant pages, then extracting fields and finally merging the records.
+4. I compared the OFP and Crew Briefing pages for the same flights and identified
    shared values such as flight number, ATC call sign and date.
-4. Based on that, I decided not to rely only on page order, but to merge records using
-   a flight key.
-5. I structured the solution into a core library, a console app and a test project so
+5. Based on that, I decided not to rely on page order, but to merge records using
+   stable values found in the document.
+6. I structured the solution into a core library, a console app and a test project so
    the extraction logic can be reused and tested independently.
-6. I planned the implementation in small steps: read PDF text, classify relevant pages,
-   extract fields, merge flight records and collect issues for missing or unexpected
-   data.
+7. I added an extraction result object with issues, so the caller can receive partial
+   results together with warnings instead of only getting a hard failure.
 
 ## Architecture
 
@@ -105,6 +106,17 @@ match and merge the two records into one `FlightData` object.
 
 The implementation does not assume that the first OFP page belongs to the first Crew
 Briefing page. It matches records by values found in the document, not by page order.
+
+## Assumptions
+
+- The input PDF contains extractable text and is not only a scanned image.
+- Relevant OFP pages contain labels such as `Operational Flight Plan`, `FltNr` and
+  `ATC`.
+- Relevant Crew Briefing pages contain labels such as `Flight Assignment / Flight Crew
+  Briefing`, `DOW` and `DOI`.
+- For the current implementation, flight number and ATC call sign are used as the
+  merge key. In a production version, I would also normalize and include the flight
+  date to avoid ambiguity across multiple days.
 
 ## How to Run
 
@@ -200,4 +212,5 @@ report missing fields and the rules may need to be adjusted.
 - Add more detailed issues for missing individual fields.
 - Make field definitions more configurable.
 - Support additional PDF layout variants.
+- Add OCR handling for scanned PDFs if required.
 
