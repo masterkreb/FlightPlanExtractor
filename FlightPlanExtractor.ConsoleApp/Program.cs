@@ -30,6 +30,12 @@ var operationalFlightPlans = operationalFlightPlanPages
     .Select(page => ofpParser.Parse(page))
     .ToList();
 
+var crewParser = new CrewBriefingParser();
+
+var crewBriefings = crewBriefingPages
+    .Select(page => crewParser.Parse(page))
+    .ToList();
+
 Console.WriteLine($"Read {pages.Count} pages from:");
 Console.WriteLine(pdfPath);
 
@@ -52,6 +58,15 @@ foreach (var ofp in operationalFlightPlans)
 {
     Console.WriteLine(
         $"Page {ofp.PageNumber}: {ofp.FlightNumber} / {ofp.AtcCallSign} / {ofp.RouteFrom}-{ofp.RouteTo} / {ofp.AircraftRegistration} / {ofp.Date}");
+}
+
+Console.WriteLine();
+Console.WriteLine("Crew Briefing data:");
+
+foreach (var crew in crewBriefings)
+{
+    Console.WriteLine(
+        $"Page {crew.PageNumber}: {crew.FlightNumber} / {crew.AtcCallSign} / C:{crew.BusinessPassengers} Y:{crew.EconomyPassengers} / DOW:{crew.DryOperatingWeight} / DOI:{crew.DryOperatingIndex} / {crew.Date}");
 }
 
 Console.WriteLine();

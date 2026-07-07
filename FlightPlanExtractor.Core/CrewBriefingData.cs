@@ -1,0 +1,12 @@
+﻿namespace FlightPlanExtractor.Core;
+
+// Stores the first extracted fields from a Crew Briefing page.
+public sealed record CrewBriefingData(
+    int PageNumber,
+    string? Date,
+    string? FlightNumber,
+    string? AtcCallSign,
+    int? BusinessPassengers,
+    int? EconomyPassengers,
+    int? DryOperatingWeight,
+    decimal? DryOperatingIndex);
