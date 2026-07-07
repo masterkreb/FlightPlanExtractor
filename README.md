@@ -165,12 +165,16 @@ The solution contains a separate xUnit test project. The current implementation 
 structured so parser and merger logic can be tested with plain text samples without
 requiring a real PDF for every test case.
 
-Additional tests should be added for:
+Current tests cover:
 
 - page classification
+- merging OFP and Crew Briefing records by flight number and ATC call sign
+
+Additional tests should be added for:
+
 - OFP field extraction
 - Crew Briefing field extraction
-- matching and unmatched-record issues
+- unmatched-record issues
 
 ## Known Limitations
 
