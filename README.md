@@ -168,6 +168,9 @@ The `PdfFlightExtractor` returns an `ExtractionResult` object that contains both
 flights and extraction issues. This allows the calling code to continue working with
 partial results instead of only stopping with an error.
 
+Each extracted OFP and Crew Briefing record keeps its source page number. This makes
+it easier to trace extracted data or issues back to a specific page in the PDF.
+
 The merger creates warnings for unmatched records:
 
 - an OFP entry without a matching Crew Briefing entry
