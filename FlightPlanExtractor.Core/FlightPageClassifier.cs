@@ -7,17 +7,17 @@ public sealed class FlightPageClassifier
         var text = page.Text;
 
         // The main OFP data page contains flight labels such as FltNr and ATC.
-        if (Contains(text, "Operational Flight Plan")
-            && Contains(text, "FltNr")
-            && Contains(text, "ATC"))
+        if (ContainsText(text, "Operational Flight Plan")
+            && ContainsText(text, "FltNr")
+            && ContainsText(text, "ATC"))
         {
             return FlightPageType.OperationalFlightPlan;
         }
 
         // The relevant crew page contains the briefing header and weight/index fields.
-        if (Contains(text, "Flight Assignment / Flight Crew Briefing")
-            && Contains(text, "DOW:")
-            && Contains(text, "DOI:"))
+        if (ContainsText(text, "Flight Assignment / Flight Crew Briefing")
+            && ContainsText(text, "DOW:")
+            && ContainsText(text, "DOI:"))
         {
             return FlightPageType.CrewBriefing;
         }
@@ -25,7 +25,7 @@ public sealed class FlightPageClassifier
         return FlightPageType.Irrelevant;
     }
 
-    private static bool Contains(string text, string value)
+    private static bool ContainsText(string text, string value)
     {
         return text.Contains(value, StringComparison.OrdinalIgnoreCase);
     }
