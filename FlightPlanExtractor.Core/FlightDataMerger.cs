@@ -46,6 +46,7 @@ public sealed class FlightDataMerger
 
     private static bool IsMatch(OperationalFlightPlanData ofp, CrewBriefingData crew)
     {
+        // The date avoids mixing flights with the same flight number on different days.
         return string.Equals(ofp.FlightNumber, crew.FlightNumber, StringComparison.OrdinalIgnoreCase)
             && string.Equals(ofp.AtcCallSign, crew.AtcCallSign, StringComparison.OrdinalIgnoreCase)
             && ofp.Date == crew.Date;

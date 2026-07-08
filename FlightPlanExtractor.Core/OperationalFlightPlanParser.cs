@@ -49,6 +49,8 @@ public sealed class OperationalFlightPlanParser
 
     private static string? FindAirportAfterLabel(string text, string label)
     {
+        // Airport values include the ICAO and IATA code, for example "LIML LIN".
+        // This avoids reading "Dela" from an empty ALTN2 field followed by "Delay".
         var pattern = Regex.Escape(label) + @"\s*([A-Z]{4})\s+[A-Z]{3}\b";
         var match = Regex.Match(text, pattern, RegexOptions.IgnoreCase);
 
