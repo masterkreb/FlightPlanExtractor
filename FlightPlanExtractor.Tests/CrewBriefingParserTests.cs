@@ -27,7 +27,7 @@ public sealed class CrewBriefingParserTests
         var result = parser.Parse(page);
 
         Assert.Equal(97, result.PageNumber);
-        Assert.Equal("19.Mar.2024", result.Date);
+        Assert.Equal(new DateOnly(2024, 3, 19), result.Date);
         Assert.Equal("LX1612", result.FlightNumber);
         Assert.Equal("SWR612Q", result.AtcCallSign);
         Assert.Equal(9, result.BusinessPassengers);

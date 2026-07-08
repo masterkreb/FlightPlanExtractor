@@ -1,3 +1,4 @@
+using System.Globalization;
 using FlightPlanExtractor.Core;
 
 if (args.Length == 0)
@@ -32,35 +33,48 @@ foreach (var flight in flights)
     Console.WriteLine();
     Console.WriteLine($"Flight {flight.FlightNumber} / {flight.AtcCallSign}");
     Console.WriteLine("Operational Flight Plan:");
-    Console.WriteLine($"  Date: {ofp?.Date}");
-    Console.WriteLine($"  Aircraft registration: {ofp?.AircraftRegistration}");
-    Console.WriteLine($"  Route: from {ofp?.RouteFrom} to {ofp?.RouteTo}");
-    Console.WriteLine($"  Alternate airdrome 1: {ofp?.AlternateAirdrome1}");
-    Console.WriteLine($"  Alternate airdrome 2: {ofp?.AlternateAirdrome2 ?? "none"}");
-    Console.WriteLine($"  Departure time: {ofp?.DepartureTime}");
-    Console.WriteLine($"  Arrival time: {ofp?.ArrivalTime}");
-    Console.WriteLine($"  Zero fuel mass: {ofp?.ZeroFuelMass}");
-    Console.WriteLine($"  Time to destination: {ofp?.TimeToDestination}");
-    Console.WriteLine($"  Fuel to destination: {ofp?.FuelToDestination}");
-    Console.WriteLine($"  Time to alternate: {ofp?.TimeToAlternate}");
-    Console.WriteLine($"  Fuel to alternate: {ofp?.FuelToAlternate}");
-    Console.WriteLine($"  Minimum fuel required: {ofp?.MinimumFuelRequired}");
-    Console.WriteLine($"  Route first and last navigation point: {ofp?.RouteFirstAndLastNavigationPoint}");
-    Console.WriteLine($"  Gain/loss: {ofp?.GainLoss}");
-    Console.WriteLine($"  Source page: {ofp?.PageNumber}");
+    Console.WriteLine("  Flight Info:");
+    Console.WriteLine($"    Date: {FormatDate(ofp?.Date)}");
+    Console.WriteLine($"    Aircraft registration: {ofp?.AircraftRegistration}");
+    Console.WriteLine($"    Route: from {ofp?.RouteFrom} to {ofp?.RouteTo}");
+    Console.WriteLine($"    Alternate airdrome 1: {ofp?.AlternateAirdrome1}");
+    Console.WriteLine($"    Alternate airdrome 2: {ofp?.AlternateAirdrome2 ?? "none"}");
+    Console.WriteLine($"    Flight number: {ofp?.FlightNumber}");
+    Console.WriteLine($"    ATC call sign: {ofp?.AtcCallSign}");
+    Console.WriteLine("  Times:");
+    Console.WriteLine($"    Departure time: {ofp?.DepartureTime}");
+    Console.WriteLine($"    Arrival time: {ofp?.ArrivalTime}");
+    Console.WriteLine("  Loadmass:");
+    Console.WriteLine($"    Zero fuel mass: {ofp?.ZeroFuelMass}");
+    Console.WriteLine("  Fuel:");
+    Console.WriteLine($"    Time to destination: {ofp?.TimeToDestination}");
+    Console.WriteLine($"    Fuel to destination: {ofp?.FuelToDestination}");
+    Console.WriteLine($"    Time to alternate: {ofp?.TimeToAlternate}");
+    Console.WriteLine($"    Fuel to alternate: {ofp?.FuelToAlternate}");
+    Console.WriteLine($"    Minimum fuel time: {ofp?.MinimumFuelTime}");
+    Console.WriteLine($"    Minimum fuel required: {ofp?.MinimumFuelRequired}");
+    Console.WriteLine("  ATC Route:");
+    Console.WriteLine($"    Route first and last navigation point: {ofp?.RouteFirstAndLastNavigationPoint}");
+    Console.WriteLine("  Corrections:");
+    Console.WriteLine($"    Gain/loss: {FormatSignedNumber(ofp?.GainLoss)}");
+    Console.WriteLine("  Source:");
+    Console.WriteLine($"    Source page: {ofp?.PageNumber}");
     Console.WriteLine("Crew Briefing:");
-    Console.WriteLine($"  Business passengers: {crew?.BusinessPassengers}");
-    Console.WriteLine($"  Economy passengers: {crew?.EconomyPassengers}");
-    Console.WriteLine($"  Dry operating weight: {crew?.DryOperatingWeight}");
-    Console.WriteLine($"  Dry operating index: {crew?.DryOperatingIndex}");
-    Console.WriteLine("  Crew members:");
+    Console.WriteLine("  Passengers:");
+    Console.WriteLine($"    Business passengers: {crew?.BusinessPassengers}");
+    Console.WriteLine($"    Economy passengers: {crew?.EconomyPassengers}");
+    Console.WriteLine("  Load:");
+    Console.WriteLine($"    Dry operating weight: {crew?.DryOperatingWeight}");
+    Console.WriteLine($"    Dry operating index: {crew?.DryOperatingIndex}");
+    Console.WriteLine("  Crew Members:");
 
     foreach (var member in crew?.CrewMembers ?? [])
     {
         Console.WriteLine($"    - {member.Name}, {member.Function}");
     }
 
-    Console.WriteLine($"  Source page: {crew?.PageNumber}");
+    Console.WriteLine("  Source:");
+    Console.WriteLine($"    Source page: {crew?.PageNumber}");
 }
 
 if (result.Issues.Count > 0)
@@ -72,4 +86,21 @@ if (result.Issues.Count > 0)
     {
         Console.WriteLine($"  [{issue.Severity}] Page {issue.PageNumber}: {issue.Message}");
     }
+}
+
+static string FormatSignedNumber(decimal? value)
+{
+    if (value is null)
+    {
+        return string.Empty;
+    }
+
+    return value > 0
+        ? $"+{value}"
+        : value.Value.ToString();
+}
+
+static string FormatDate(DateOnly? date)
+{
+    return date?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty;
 }

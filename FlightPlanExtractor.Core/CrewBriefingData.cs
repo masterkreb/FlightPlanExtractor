@@ -3,7 +3,7 @@
 // Stores the first extracted fields from a Crew Briefing page.
 public sealed record CrewBriefingData(
     int PageNumber,
-    string? Date,
+    DateOnly? Date,
     string? FlightNumber,
     string? AtcCallSign,
     int? BusinessPassengers,

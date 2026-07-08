@@ -21,10 +21,11 @@ public sealed class CrewBriefingParser
             CrewMembers: FindCrewMembers(text));
     }
 
-    private static string? FindDate(string text)
+    private static DateOnly? FindDate(string text)
     {
-        var match = Regex.Match(text, @"\d{1,2}\.Mar\.20\d{2}", RegexOptions.IgnoreCase);
-        return match.Success ? match.Value : null;
+        var match = Regex.Match(text, @"\d{1,2}\.[A-Z]{3}\.\d{4}", RegexOptions.IgnoreCase);
+
+        return match.Success ? DateParser.Parse(match.Value) : null;
     }
 
     private static string? FindFlightNumber(string text)

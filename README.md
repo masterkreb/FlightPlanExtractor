@@ -102,19 +102,17 @@ FlightPlanExtractor.slnx
 ## Matching Strategy
 
 Each relevant flight has an OFP record and a Crew Briefing record in separate page
-blocks. By inspecting the full sample file, I found that the flight number and ATC
-call sign appear on both records for the same flight, so I use these values as the
-merge key.
+blocks. By inspecting the full sample file, I found that the flight number, ATC call
+sign and date appear on both records for the same flight, so I use these values as
+the merge key.
 
 | Source | Values used for matching |
 |---|---|
-| Operational Flight Plan | Flight number, ATC call sign |
-| Crew Briefing | Flight number, ATC call sign |
+| Operational Flight Plan | Flight number, ATC call sign, normalized date |
+| Crew Briefing | Flight number, ATC call sign, normalized date |
 
-For the sample file, flight number and ATC call sign are enough to match the records.
-I also considered using the flight date, but the OFP and Crew Briefing dates have
-different formats in the extracted text. For this version, I kept the merge key simple
-and documented date normalization as a possible improvement.
+The OFP and Crew Briefing dates have different formats in the extracted text, so the
+parsers normalize them before merging.
 
 The code does not assume that the first OFP page belongs to the first Crew
 Briefing page. It matches records by values found in the document, not by page order.
@@ -126,6 +124,8 @@ Briefing page. It matches records by values found in the document, not by page o
   `ATC`.
 - Relevant Crew Briefing pages contain labels such as `Flight Assignment / Flight Crew
   Briefing`, `DOW` and `DOI`.
+- Dates are expected in formats similar to the sample file, for example `19MAR24` and
+  `19.Mar.2024`.
 
 ## How to Run
 
@@ -195,7 +195,7 @@ Current tests cover:
 - page classification
 - OFP field extraction
 - Crew Briefing field extraction
-- merging OFP and Crew Briefing records by flight number and ATC call sign
+- merging OFP and Crew Briefing records by flight number, ATC call sign and date
 - the extraction pipeline from already-read page text to merged flight data
 
 Additional tests should be added for:
@@ -214,9 +214,9 @@ The current version is focused on the provided sample PDF. It demonstrates the
 approach and extracts the requested fields from that sample, but additional PDF
 variants may require more parsing rules.
 
-Dates are currently kept in the format found in the PDF text, for example `19MAR24`
-for OFP pages and `19.Mar.2024` for Crew Briefing pages. A production version should
-normalize these values.
+Dates are normalized and displayed as `yyyy-MM-dd`. The current date parser supports
+the formats found in the sample file; other date formats may require more parser
+rules.
 
 Some parser rules are regex-based and depend on labels such as `FltNr`, `ATC`, `DOW`
 and `DOI`. If the external PDF generator changes these labels, the parser should
@@ -224,14 +224,12 @@ report missing fields and the rules may need to be adjusted.
 
 ## Possible Improvements
 
-- Normalize dates into a common `DateOnly` value.
 - Add more unit tests for parser edge cases.
 - Add structured JSON output.
 - Add more detailed issues for missing individual fields.
 - Make field definitions more configurable.
 - Support additional PDF layout variants.
 - Add OCR handling for scanned PDFs if required.
-- Normalize and include the flight date in the merge key, so flights with the same
-  number on different days cannot be mixed up.
+- Support additional date formats if external PDF files use different formats.
 - Introduce interfaces and dependency injection if multiple implementations are needed.
 

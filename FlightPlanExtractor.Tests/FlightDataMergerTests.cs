@@ -1,15 +1,48 @@
-﻿using FlightPlanExtractor.Core;
+using FlightPlanExtractor.Core;
 
 namespace FlightPlanExtractor.Tests;
 
 public sealed class FlightDataMergerTests
 {
     [Fact]
-    public void Merge_ShouldCombineOfpAndCrewBriefing_WhenFlightNumberAndAtcMatch()
+    public void Merge_ShouldCombineOfpAndCrewBriefing_WhenFlightNumberAtcAndDateMatch()
     {
-        var ofp = new OperationalFlightPlanData(
+        var ofp = CreateOperationalFlightPlan(new DateOnly(2024, 3, 19));
+        var crew = CreateCrewBriefing(new DateOnly(2024, 3, 19));
+        var merger = new FlightDataMerger();
+
+        var result = merger.Merge([ofp], [crew]);
+
+        Assert.Single(result.Flights);
+        Assert.Empty(result.Issues);
+
+        var flight = result.Flights[0];
+
+        Assert.Equal("LX1612", flight.FlightNumber);
+        Assert.Equal("SWR612Q", flight.AtcCallSign);
+        Assert.Same(ofp, flight.OperationalFlightPlan);
+        Assert.Same(crew, flight.CrewBriefing);
+    }
+
+    [Fact]
+    public void Merge_ShouldNotCombineRecords_WhenDatesDoNotMatch()
+    {
+        var ofp = CreateOperationalFlightPlan(new DateOnly(2024, 3, 19));
+        var crew = CreateCrewBriefing(new DateOnly(2024, 3, 20));
+        var merger = new FlightDataMerger();
+
+        var result = merger.Merge([ofp], [crew]);
+
+        var flight = Assert.Single(result.Flights);
+        Assert.Null(flight.CrewBriefing);
+        Assert.Equal(2, result.Issues.Count);
+    }
+
+    private static OperationalFlightPlanData CreateOperationalFlightPlan(DateOnly date)
+    {
+        return new OperationalFlightPlanData(
             PageNumber: 5,
-            Date: "19MAR24",
+            Date: date,
             AircraftRegistration: "HBJVY",
             RouteFrom: "LSZH",
             RouteTo: "LIMC",
@@ -24,13 +57,17 @@ public sealed class FlightDataMergerTests
             FuelToDestination: 1.7m,
             TimeToAlternate: "0:20",
             FuelToAlternate: 0.8m,
+            MinimumFuelTime: "1:43",
             MinimumFuelRequired: 3.6m,
             RouteFirstAndLastNavigationPoint: "VEBIT - RIXUV",
             GainLoss: 0);
+    }
 
-        var crew = new CrewBriefingData(
+    private static CrewBriefingData CreateCrewBriefing(DateOnly date)
+    {
+        return new CrewBriefingData(
             PageNumber: 97,
-            Date: "19.Mar.2024",
+            Date: date,
             FlightNumber: "LX1612",
             AtcCallSign: "SWR612Q",
             BusinessPassengers: 9,
@@ -38,19 +75,5 @@ public sealed class FlightDataMergerTests
             DryOperatingWeight: 28822,
             DryOperatingIndex: 0,
             CrewMembers: []);
-
-        var merger = new FlightDataMerger();
-
-        var result = merger.Merge([ofp], [crew]);
-
-        Assert.Single(result.Flights);
-        Assert.Empty(result.Issues);
-
-        var flight = result.Flights[0];
-
-        Assert.Equal("LX1612", flight.FlightNumber);
-        Assert.Equal("SWR612Q", flight.AtcCallSign);
-        Assert.Same(ofp, flight.OperationalFlightPlan);
-        Assert.Same(crew, flight.CrewBriefing);
     }
 }

@@ -34,7 +34,7 @@ public sealed class OperationalFlightPlanParserTests
         var result = parser.Parse(page);
 
         Assert.Equal(5, result.PageNumber);
-        Assert.Equal("19MAR24", result.Date);
+        Assert.Equal(new DateOnly(2024, 3, 19), result.Date);
         Assert.Equal("HBJVY", result.AircraftRegistration);
         Assert.Equal("LSZH", result.RouteFrom);
         Assert.Equal("LIMC", result.RouteTo);
@@ -49,6 +49,7 @@ public sealed class OperationalFlightPlanParserTests
         Assert.Equal(1.7m, result.FuelToDestination);
         Assert.Equal("0:20", result.TimeToAlternate);
         Assert.Equal(0.8m, result.FuelToAlternate);
+        Assert.Equal("1:43", result.MinimumFuelTime);
         Assert.Equal(3.6m, result.MinimumFuelRequired);
         Assert.Equal("VEBIT - RIXUV", result.RouteFirstAndLastNavigationPoint);
         Assert.Equal(0, result.GainLoss);

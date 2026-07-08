@@ -1,9 +1,9 @@
 ﻿namespace FlightPlanExtractor.Core;
 
-// Stores the first extracted fields from an Operational Flight Plan page.
+// Stores extracted fields from an Operational Flight Plan page.
 public sealed record OperationalFlightPlanData(
     int PageNumber,
-    string? Date,
+    DateOnly? Date,
     string? AircraftRegistration,
     string? RouteFrom,
     string? RouteTo,
@@ -18,6 +18,7 @@ public sealed record OperationalFlightPlanData(
     decimal? FuelToDestination,
     string? TimeToAlternate,
     decimal? FuelToAlternate,
+    string? MinimumFuelTime,
     decimal? MinimumFuelRequired,
     string? RouteFirstAndLastNavigationPoint,
     decimal? GainLoss);

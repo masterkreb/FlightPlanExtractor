@@ -11,9 +11,7 @@ public sealed class FlightDataMerger
 
         foreach (var ofp in operationalFlightPlans)
         {
-            var matchingCrew = crewBriefings.FirstOrDefault(crew =>
-                crew.FlightNumber == ofp.FlightNumber
-                && crew.AtcCallSign == ofp.AtcCallSign);
+            var matchingCrew = crewBriefings.FirstOrDefault(crew => IsMatch(ofp, crew));
 
             if (matchingCrew is null)
             {
@@ -32,9 +30,7 @@ public sealed class FlightDataMerger
 
         foreach (var crew in crewBriefings)
         {
-            var matchingOfp = operationalFlightPlans.FirstOrDefault(ofp =>
-                ofp.FlightNumber == crew.FlightNumber
-                && ofp.AtcCallSign == crew.AtcCallSign);
+            var matchingOfp = operationalFlightPlans.FirstOrDefault(ofp => IsMatch(ofp, crew));
 
             if (matchingOfp is null)
             {
@@ -46,5 +42,12 @@ public sealed class FlightDataMerger
         }
 
         return new ExtractionResult(flights, issues);
+    }
+
+    private static bool IsMatch(OperationalFlightPlanData ofp, CrewBriefingData crew)
+    {
+        return string.Equals(ofp.FlightNumber, crew.FlightNumber, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(ofp.AtcCallSign, crew.AtcCallSign, StringComparison.OrdinalIgnoreCase)
+            && ofp.Date == crew.Date;
     }
 }
