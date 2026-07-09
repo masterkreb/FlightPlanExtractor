@@ -49,7 +49,6 @@ public sealed class OperationalFlightPlanParserTests
         Assert.Equal(1.7m, result.FuelToDestination);
         Assert.Equal("0:20", result.TimeToAlternate);
         Assert.Equal(0.8m, result.FuelToAlternate);
-        Assert.Equal("1:43", result.MinimumFuelTime);
         Assert.Equal(3.6m, result.MinimumFuelRequired);
         Assert.Equal("VEBIT - RIXUV", result.RouteFirstAndLastNavigationPoint);
         Assert.Equal(0, result.GainLoss);

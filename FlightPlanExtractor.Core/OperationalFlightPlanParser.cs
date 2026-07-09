@@ -28,7 +28,6 @@ public sealed class OperationalFlightPlanParser
             FuelToDestination: FindFuelAmountForAirport(text, destinationAirport),
             TimeToAlternate: FindFuelTimeForAirport(text, alternateAirport1),
             FuelToAlternate: FindFuelAmountForAirport(text, alternateAirport1),
-            MinimumFuelTime: FindMinimumFuelTime(text),
             MinimumFuelRequired: FindMinimumFuelRequired(text),
             RouteFirstAndLastNavigationPoint: FindRouteFirstAndLastNavigationPoint(text),
             GainLoss: FindGainLoss(text));
@@ -96,13 +95,6 @@ public sealed class OperationalFlightPlanParser
         return match.Success
             ? decimal.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture)
             : null;
-    }
-
-    private static string? FindMinimumFuelTime(string text)
-    {
-        var match = Regex.Match(text, @"MIN:\s*(\d{1,2}:\d{2})\s+\d+(?:\.\d+)?", RegexOptions.IgnoreCase);
-
-        return match.Success ? match.Groups[1].Value : null;
     }
 
     private static Match? FindFuelLineForAirport(string text, string? airportCode)

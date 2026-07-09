@@ -18,7 +18,6 @@ public sealed record OperationalFlightPlanData(
     decimal? FuelToDestination,
     string? TimeToAlternate,
     decimal? FuelToAlternate,
-    string? MinimumFuelTime,
     decimal? MinimumFuelRequired,
     string? RouteFirstAndLastNavigationPoint,
     decimal? GainLoss);

@@ -51,7 +51,6 @@ foreach (var flight in flights)
     Console.WriteLine($"    Fuel to destination: {ofp?.FuelToDestination}");
     Console.WriteLine($"    Time to alternate: {ofp?.TimeToAlternate}");
     Console.WriteLine($"    Fuel to alternate: {ofp?.FuelToAlternate}");
-    Console.WriteLine($"    Minimum fuel time: {ofp?.MinimumFuelTime}");
     Console.WriteLine($"    Minimum fuel required: {ofp?.MinimumFuelRequired}");
     Console.WriteLine("  ATC Route:");
     Console.WriteLine($"    Route first and last navigation point: {ofp?.RouteFirstAndLastNavigationPoint}");

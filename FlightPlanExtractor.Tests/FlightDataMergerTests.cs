@@ -57,7 +57,6 @@ public sealed class FlightDataMergerTests
             FuelToDestination: 1.7m,
             TimeToAlternate: "0:20",
             FuelToAlternate: 0.8m,
-            MinimumFuelTime: "1:43",
             MinimumFuelRequired: 3.6m,
             RouteFirstAndLastNavigationPoint: "VEBIT - RIXUV",
             GainLoss: 0);
