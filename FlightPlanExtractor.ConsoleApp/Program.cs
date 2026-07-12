@@ -104,7 +104,7 @@ if (result.Issues.Count > 0)
     }
 }
 
-// Formats a gain/loss value for console output, adding a plus sign to positive values.
+// Formats a gain/loss value with a plus or minus sign for console output.
 static string FormatSignedNumber(decimal? value)
 {
     if (value is null)
