@@ -112,7 +112,7 @@ static string FormatSignedNumber(decimal? value)
         return string.Empty;
     }
 
-    return value > 0
+    return value >= 0
         ? $"+{value}"
         : value.Value.ToString();
 }
