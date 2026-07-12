@@ -2,6 +2,7 @@ using System.Globalization;
 
 namespace FlightPlanExtractor.Core;
 
+// Parses OFP and Crew Briefing date formats into DateOnly values.
 internal static class DateParser
 {
     private static readonly string[] SupportedFormats =

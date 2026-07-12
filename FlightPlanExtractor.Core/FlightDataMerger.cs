@@ -1,5 +1,8 @@
-﻿namespace FlightPlanExtractor.Core;
+﻿using System.Globalization;
 
+namespace FlightPlanExtractor.Core;
+
+// Matches OFP and Crew Briefing records by flight number, ATC call sign and date.
 public sealed class FlightDataMerger
 {
     public ExtractionResult Merge(
@@ -18,12 +21,10 @@ public sealed class FlightDataMerger
                 issues.Add(new ExtractionIssue(
                     PageNumber: ofp.PageNumber,
                     Severity: "Warning",
-                    Message: $"No matching crew briefing found for {ofp.FlightNumber} / {ofp.AtcCallSign}."));
+                    Message: $"No matching crew briefing found for {ofp.FlightNumber} / {ofp.AtcCallSign} on {FormatDate(ofp.Date)}."));
             }
 
             flights.Add(new FlightData(
-                FlightNumber: ofp.FlightNumber,
-                AtcCallSign: ofp.AtcCallSign,
                 OperationalFlightPlan: ofp,
                 CrewBriefing: matchingCrew));
         }
@@ -37,7 +38,7 @@ public sealed class FlightDataMerger
                 issues.Add(new ExtractionIssue(
                     PageNumber: crew.PageNumber,
                     Severity: "Warning",
-                    Message: $"Crew briefing found without matching OFP for {crew.FlightNumber} / {crew.AtcCallSign}."));
+                    Message: $"Crew briefing found without matching OFP for {crew.FlightNumber} / {crew.AtcCallSign} on {FormatDate(crew.Date)}."));
             }
         }
 
@@ -50,5 +51,11 @@ public sealed class FlightDataMerger
         return string.Equals(ofp.FlightNumber, crew.FlightNumber, StringComparison.OrdinalIgnoreCase)
             && string.Equals(ofp.AtcCallSign, crew.AtcCallSign, StringComparison.OrdinalIgnoreCase)
             && ofp.Date == crew.Date;
+    }
+
+    private static string FormatDate(DateOnly? date)
+    {
+        return date?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+            ?? "unknown date";
     }
 }

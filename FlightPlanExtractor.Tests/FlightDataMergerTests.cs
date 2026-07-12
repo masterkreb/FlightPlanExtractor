@@ -18,8 +18,6 @@ public sealed class FlightDataMergerTests
 
         var flight = result.Flights[0];
 
-        Assert.Equal("LX1612", flight.FlightNumber);
-        Assert.Equal("SWR612Q", flight.AtcCallSign);
         Assert.Same(ofp, flight.OperationalFlightPlan);
         Assert.Same(crew, flight.CrewBriefing);
     }

@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace FlightPlanExtractor.Core;
 
+// Extracts required OFP fields from the text of one Operational Flight Plan page.
 public sealed class OperationalFlightPlanParser
 {
     public OperationalFlightPlanData Parse(PdfPageText page)
@@ -72,6 +73,20 @@ public sealed class OperationalFlightPlanParser
         return match.Success ? int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture) : null;
     }
 
+    private static Match? FindFuelLineForAirport(string text, string? airportCode)
+    {
+        if (string.IsNullOrWhiteSpace(airportCode))
+        {
+            return null;
+        }
+
+        // Fuel lines look like "LIMC: 0:48 1.7" in the extracted text.
+        var pattern = Regex.Escape(airportCode) + @":\s*(\d{1,2}:\d{2})\s+(\d+(?:\.\d+)?)";
+        var match = Regex.Match(text, pattern, RegexOptions.IgnoreCase);
+
+        return match.Success ? match : null;
+    }
+
     private static string? FindFuelTimeForAirport(string text, string? airportCode)
     {
         var match = FindFuelLineForAirport(text, airportCode);
@@ -95,20 +110,6 @@ public sealed class OperationalFlightPlanParser
         return match.Success
             ? decimal.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture)
             : null;
-    }
-
-    private static Match? FindFuelLineForAirport(string text, string? airportCode)
-    {
-        if (string.IsNullOrWhiteSpace(airportCode))
-        {
-            return null;
-        }
-
-        // Fuel lines look like "LIMC: 0:48 1.7" in the extracted text.
-        var pattern = Regex.Escape(airportCode) + @":\s*(\d{1,2}:\d{2})\s+(\d+(?:\.\d+)?)";
-        var match = Regex.Match(text, pattern, RegexOptions.IgnoreCase);
-
-        return match.Success ? match : null;
     }
 
     private static string? FindRouteFirstAndLastNavigationPoint(string text)

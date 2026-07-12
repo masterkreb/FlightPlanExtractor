@@ -168,6 +168,11 @@ The `PdfFlightExtractor` returns an `ExtractionResult` object that contains both
 flights and extraction issues. This allows the calling code to continue working with
 partial results instead of only stopping with an error.
 
+If no PDF path is provided, the console app shows an example command.
+
+The console app checks whether the input file exists. If the PDF cannot be read, it
+shows a clear error message instead of an unhandled stack trace.
+
 Each extracted OFP and Crew Briefing record keeps its source page number. This makes
 it easier to trace extracted data or issues back to a specific page in the PDF.
 
@@ -181,7 +186,7 @@ Each issue contains a severity, a message and the source page if available.
 Example issue:
 
 ```text
-[Warning] Page 5: No matching crew briefing found for LX1612 / SWR612Q.
+[Warning] Page 5: No matching crew briefing found for LX1612 / SWR612Q on 2024-03-19.
 ```
 
 ## Testing
@@ -196,40 +201,27 @@ Current tests cover:
 - OFP field extraction
 - Crew Briefing field extraction
 - merging OFP and Crew Briefing records by flight number, ATC call sign and date
+- unmatched OFP and Crew Briefing records when their dates do not match
 - the extraction pipeline from already-read page text to merged flight data
-
-Additional tests should be added for:
-
-- unmatched-record issues
 
 ## Known Limitations
 
 PDF text extraction does not always follow the visual layout exactly. For example, an
 empty `ALTN2` field in the sample file is followed by the word `Delay`, so a parser
 that simply takes the next four letters after `ALTN2:` would incorrectly read `Dela`
-as an airport code. The current OFP parser therefore expects an airport pattern such
-as `LIML LIN` instead of only any four letters.
+(the first four letters of `Delay`) as an airport code. The current OFP parser therefore
+expects an airport pattern such as `LIML LIN` instead of only any four letters.
 
-The current version is focused on the provided sample PDF. It demonstrates the
-approach and extracts the requested fields from that sample, but additional PDF
-variants may require more parsing rules.
+The current version is focused on the provided sample PDF and extracts the required
+fields from it. Other PDF files may use different labels, layouts or text order.
+For example, the code expects `FltNr:`, but another PDF could use `Flight Number:`.
+In that case, the parser rule would need to be extended. If a label is not found, the
+affected value is `null`.
 
-Dates are normalized and displayed as `yyyy-MM-dd`. The current date parser supports
-the formats found in the sample file; other date formats may require more parser
-rules.
+Dates are normalized and displayed as `yyyy-MM-dd`. For example, the parser supports
+`19MAR24` and `19.Mar.2024`, and displays both as `2024-03-19`. A different format
+such as `2024/03/19` would need another parser rule.
 
-Some parser rules are regex-based and depend on labels such as `FltNr`, `ATC`, `DOW`
-and `DOI`. If the external PDF generator changes these labels, the parser should
-report missing fields and the rules may need to be adjusted.
-
-## Possible Improvements
-
-- Add more unit tests for parser edge cases.
-- Add structured JSON output.
-- Add more detailed issues for missing individual fields.
-- Make field definitions more configurable.
-- Support additional PDF layout variants.
-- Add OCR handling for scanned PDFs if required.
-- Support additional date formats if external PDF files use different formats.
-- Introduce interfaces and dependency injection if multiple implementations are needed.
-
+The sample file has unique merge keys. For example, if two Crew Briefing records
+have `LX1612`, `SWR612Q` and `2024-03-19`, the current merger uses the first
+matching Crew Briefing record.

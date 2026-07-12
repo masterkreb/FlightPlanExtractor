@@ -11,8 +11,25 @@ if (args.Length == 0)
 
 var pdfPath = args[0];
 
+if (!File.Exists(pdfPath))
+{
+    Console.Error.WriteLine($"PDF file not found: {pdfPath}");
+    return;
+}
+
 var extractor = new PdfFlightExtractor();
-var result = extractor.Extract(pdfPath);
+ExtractionResult result;
+
+try
+{
+    result = extractor.Extract(pdfPath);
+}
+catch (Exception exception)
+{
+    Console.Error.WriteLine($"Could not read PDF: {exception.Message}");
+    return;
+}
+
 var flights = result.Flights;
 
 Console.WriteLine($"Read {result.TotalPageCount} pages from:");
@@ -31,7 +48,7 @@ foreach (var flight in flights)
     var crew = flight.CrewBriefing;
 
     Console.WriteLine();
-    Console.WriteLine($"Flight {flight.FlightNumber} / {flight.AtcCallSign}");
+    Console.WriteLine($"Flight {ofp?.FlightNumber} / {ofp?.AtcCallSign}");
     Console.WriteLine("Operational Flight Plan:");
     Console.WriteLine("  Flight Info:");
     Console.WriteLine($"    Date: {FormatDate(ofp?.Date)}");

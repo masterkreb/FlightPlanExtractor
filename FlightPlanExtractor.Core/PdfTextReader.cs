@@ -2,6 +2,7 @@ using UglyToad.PdfPig;
 
 namespace FlightPlanExtractor.Core;
 
+// Reads text from each PDF page using PdfPig.
 public sealed class PdfTextReader
 {
     public IReadOnlyList<PdfPageText> ReadPages(string pdfPath)

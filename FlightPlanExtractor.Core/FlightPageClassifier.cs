@@ -1,5 +1,6 @@
 namespace FlightPlanExtractor.Core;
 
+// Classifies PDF pages as OFP, Crew Briefing or irrelevant.
 public sealed class FlightPageClassifier
 {
     public FlightPageType Classify(PdfPageText page)

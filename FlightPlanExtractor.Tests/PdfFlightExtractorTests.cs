@@ -28,6 +28,8 @@ public sealed class PdfFlightExtractorTests
                 To DEST: VEBIT ABCDE RIXUV To ALTN1:
                 Gain / Loss: GAIN 0$/TON
                 """),
+            // In PdfPig text, the passenger numbers are directly after the flight time.
+            // "00:559/42Scheduled" means: 00:55 flight time, 9 business passengers, and 42 economy passengers.
             new(3, """
                 Flight Assignment / Flight Crew Briefing
                 19.Mar.2024
@@ -49,8 +51,8 @@ public sealed class PdfFlightExtractorTests
         Assert.Equal(3, result.TotalPageCount);
         Assert.Equal(1, result.OperationalFlightPlanPageCount);
         Assert.Equal(1, result.CrewBriefingPageCount);
-        Assert.Equal("LX1234", flight.FlightNumber);
-        Assert.Equal("SWR123A", flight.AtcCallSign);
+        Assert.Equal("LX1234", flight.OperationalFlightPlan?.FlightNumber);
+        Assert.Equal("SWR123A", flight.OperationalFlightPlan?.AtcCallSign);
         Assert.Equal("LSZH", flight.OperationalFlightPlan?.RouteFrom);
         Assert.Equal(9, flight.CrewBriefing?.BusinessPassengers);
         Assert.Equal(42, flight.CrewBriefing?.EconomyPassengers);

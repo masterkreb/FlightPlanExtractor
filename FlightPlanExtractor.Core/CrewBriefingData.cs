@@ -1,6 +1,6 @@
 ﻿namespace FlightPlanExtractor.Core;
 
-// Stores the first extracted fields from a Crew Briefing page.
+// Stores extracted fields from a Crew Briefing page.
 public sealed record CrewBriefingData(
     int PageNumber,
     DateOnly? Date,

@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace FlightPlanExtractor.Core;
 
+// Extracts required Crew Briefing fields from the text of one Crew Briefing page.
 public sealed class CrewBriefingParser
 {
     public CrewBriefingData Parse(PdfPageText page)
@@ -16,8 +17,8 @@ public sealed class CrewBriefingParser
             AtcCallSign: FindAtcCallSign(text),
             BusinessPassengers: FindPassengerCount(text, 1),
             EconomyPassengers: FindPassengerCount(text, 2),
-            DryOperatingWeight: FindIntegerAfterLabel(text, "DOW:"),
-            DryOperatingIndex: FindDecimalAfterLabel(text, "DOI:"),
+            DryOperatingWeight: FindDow(text),
+            DryOperatingIndex: FindDoi(text),
             CrewMembers: FindCrewMembers(text));
     }
 
@@ -52,36 +53,6 @@ public sealed class CrewBriefingParser
         }
 
         return int.Parse(match.Groups[groupNumber].Value, CultureInfo.InvariantCulture);
-    }
-
-    private static int? FindIntegerAfterLabel(string text, string label)
-    {
-        if (label.Equals("DOW:", StringComparison.OrdinalIgnoreCase))
-        {
-            return FindDow(text);
-        }
-
-        var pattern = Regex.Escape(label) + @"\s*(\d+)";
-        var match = Regex.Match(text, pattern, RegexOptions.IgnoreCase);
-
-        return match.Success
-            ? int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture)
-            : null;
-    }
-
-    private static decimal? FindDecimalAfterLabel(string text, string label)
-    {
-        if (label.Equals("DOI:", StringComparison.OrdinalIgnoreCase))
-        {
-            return FindDoi(text);
-        }
-
-        var pattern = Regex.Escape(label) + @"\s*(\d+(?:\.\d+)?)";
-        var match = Regex.Match(text, pattern, RegexOptions.IgnoreCase);
-
-        return match.Success
-            ? decimal.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture)
-            : null;
     }
 
     private static int? FindDow(string text)
